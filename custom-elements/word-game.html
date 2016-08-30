@@ -1,0 +1,88 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<dom-module id="word-game">
+  <style>
+
+  .card {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    margin: 24px;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #757575;
+  }
+
+  </style>
+
+  <template>
+    <iron-ajax
+      auto
+      id="ajax"
+      content-type="application/json"
+      url="../words.json"
+      method="GET"
+      last-response="{{currentList}}">
+    </iron-ajax>
+
+    <div class="card">
+      <paper-input id='newWord' label="Word input"></paper-input>
+      <paper-button raised on-tap="_check">Play</paper-button>
+    </div>
+  </template>
+  <script>
+
+    Polymer({
+      is: 'word-game',
+
+      properties: {
+        highScore: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+
+        userWord: {
+          type: Object,
+          notify: true,
+          value: {},
+        }
+      },
+
+      _check: function () {
+        if (this.currentList.words.some(item => item === this.$.newWord.value)) {
+          let wordInput = this.$.newWord.value
+          let wordScore = this._count_scores(this._word_counter(wordInput));
+          this.userWord.word = wordInput;
+          this.userWord.score = wordScore;
+          console.log(this.userWord);
+          this.push('highScore', this.userWord)
+        } else {
+
+        }
+      },
+
+      _word_counter: function (nextWord) {
+        return nextWord.split('').reduce( (acc, letter) => {
+            acc[letter] = (acc[letter] + 1) || 1;
+            return acc;
+        },{});
+      },
+
+      _count_scores: function (numOfLetters) {
+        console.log(numOfLetters);
+        let score = 0
+        let keys = Object.keys(numOfLetters)
+        keys.forEach((e) => {
+          if (numOfLetters[e] === 1) {
+            score += 1;
+          }
+        })
+        return score;
+      }
+
+    });
+  </script>
+</dom-module>
