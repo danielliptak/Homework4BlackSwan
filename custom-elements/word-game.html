@@ -2,6 +2,9 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+
 
 <dom-module id="word-game">
   <style>
@@ -27,10 +30,16 @@
       last-response="{{currentList}}">
     </iron-ajax>
 
+
     <div class="card">
       <paper-input id='newWord' label="Word input"></paper-input>
       <paper-button raised on-tap="_check">Play</paper-button>
     </div>
+    <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <p>
+
+      </p>
+    </paper-dialog>
   </template>
   <script>
 
@@ -41,27 +50,40 @@
         highScore: {
           type: Array,
           notify: true,
-          value: []
+          value: [],
         },
 
         userWord: {
           type: Object,
           notify: true,
-          value: {},
-        }
+          value: {}
+        },
+        popUpContent: String,
+
       },
 
       _check: function () {
-        if (this.currentList.words.some(item => item === this.$.newWord.value)) {
-          let wordInput = this.$.newWord.value
-          let wordScore = this._count_scores(this._word_counter(wordInput));
+        let wordInput = this.$.newWord.value
+        let wordScore = this._count_scores(this._word_counter(wordInput));
+        if (this._checkInDictionary(wordInput) && !this._checkInScoreTable(wordInput)) {
           this.userWord.word = wordInput;
           this.userWord.score = wordScore;
-          console.log(this.userWord);
           this.push('highScore', this.userWord)
+          this.$.animated.open()
+          localStorage.setItem('wordgame', JSON.stringify(this.highScore));
+        } else if (this._checkInScoreTable(wordInput)) {
+
         } else {
 
         }
+      },
+
+      _checkInDictionary: function (wordInput) {
+        return this.currentList.words.some(item => item === wordInput)
+      },
+
+      _checkInScoreTable: function (wordInput) {
+        return this.highScore.some(item => item.word === wordInput)
       },
 
       _word_counter: function (nextWord) {
@@ -72,7 +94,6 @@
       },
 
       _count_scores: function (numOfLetters) {
-        console.log(numOfLetters);
         let score = 0
         let keys = Object.keys(numOfLetters)
         keys.forEach((e) => {

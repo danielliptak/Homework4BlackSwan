@@ -32,6 +32,41 @@
 
     Polymer({
       is: 'high-score',
+      properties: {
+
+        highScore: {
+          type: Array,
+          notify: true,
+          value: function () {
+            if (JSON.parse(localStorage.getItem('wordgame'))) {
+              return this._sortingHighScore(JSON.parse(localStorage.getItem('wordgame')))
+            } else {
+              return [];
+            }
+          }
+        },
+
+       sortedHighScore: {
+         type: Array,
+         notify: true,
+       }
+      },
+
+      _sortingHighScore: function (rawScores) {
+        return rawScores.sort(function(a, b){
+          return b.score-a.score;
+        })
+      },
+
+      _setUpHighScore: function () {
+        console.log('csd');
+        if (JSON.parse(localStorage.getItem('wordgame'))) {
+          return JSON.parse(localStorage.getItem('wordgame'))
+          console.log(this.highScore);
+        } else {
+          return [];
+        }
+      },
 
     });
   </script>
