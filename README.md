@@ -3,7 +3,7 @@
 ### For this project I used Polymes Js Framework.
 
 ## Live demo on this link:
-[Word Game][CV(eng)](http://danielliptak.github.io/Homework4BlackSwan/)
+[Word Game](http://danielliptak.github.io/Homework4BlackSwan/)
 
 ### Deployment instructions:
 - For this repository and create a clone to your PC.
