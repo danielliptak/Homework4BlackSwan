@@ -33,7 +33,11 @@
       }
 
       #main {
-        background-color: grey;
+        background-image: url('background.png');
+      }
+
+      #sidebar {
+        font-size: 200%
       }
 
       .drawer-list {
@@ -54,10 +58,9 @@
         padding-left: 32px;
       }
 
-
     </style>
 
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" use-hash-as-path></app-location>
     <app-route
         route="{{route}}"
         pattern="/:page"
@@ -69,9 +72,9 @@
       <!-- Drawer content -->
       <app-drawer>
         <app-toolbar>Menu</app-toolbar>
-        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="word-game" href="/word-game">Game</a>
-          <a name="high-score" href="/high-score">Scores</a>
+        <iron-selector id="sidebar" selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+          <a name="word-game" href="#/word-game">Game</a>
+          <a name="high-score" href="#/high-score">Scores</a>
         </iron-selector>
       </app-drawer>
 
@@ -110,6 +113,17 @@
           observer: '_pageChanged'
         },
 
+        highScore: {
+          type: Array,
+          notify: true,
+          value: function () {
+            if (JSON.parse(localStorage.getItem('wordgame'))) {
+              return this._sortingHighScore(JSON.parse(localStorage.getItem('wordgame')));
+            } else {
+              return [];
+            }
+          }
+        }
       },
 
       observers: [
@@ -118,6 +132,12 @@
 
       _routePageChanged: function(page) {
         this.page = page || 'view1';
+      },
+
+      _sortingHighScore: function (rawScores) {
+        return rawScores.sort(function(a, b){
+          return b.score-a.score;
+        })
       },
 
       _pageChanged: function(page) {

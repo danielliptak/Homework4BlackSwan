@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
 
 
 <dom-module id="word-game">
@@ -16,6 +17,12 @@
     border-radius: 5px;
     background-color: #fff;
     color: #757575;
+  }
+  #animated, paper-button {
+    font-family: 'Lobster', cursive;
+  }
+  paper-dialog {
+    border-radius: 20px;
   }
 
   </style>
@@ -35,10 +42,11 @@
       <paper-input id='newWord' label="Word input"></paper-input>
       <paper-button raised on-tap="_check">Play</paper-button>
     </div>
-    <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+    <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <p>
-
+      {{popUpContent}}
       </p>
+      <img id="image" src=""/>
     </paper-dialog>
   </template>
   <script>
@@ -50,7 +58,7 @@
         highScore: {
           type: Array,
           notify: true,
-          value: [],
+
         },
 
         userWord: {
@@ -64,18 +72,27 @@
 
       _check: function () {
         let wordInput = this.$.newWord.value
+        document.querySelector('img').src = ''
         let wordScore = this._count_scores(this._word_counter(wordInput));
         if (this._checkInDictionary(wordInput) && !this._checkInScoreTable(wordInput)) {
           this.userWord.word = wordInput;
           this.userWord.score = wordScore;
-          this.push('highScore', this.userWord)
-          this.$.animated.open()
-          localStorage.setItem('wordgame', JSON.stringify(this.highScore));
+          if (Math.max.apply(Math, this._getScoreList()) < wordScore) {
+            this.push('highScore', this.userWord)
+            this.popUpContent = 'New Record!!!! Yuppiii "' + wordInput + '" value is '+ wordScore +'!'
+            localStorage.setItem('wordgame', JSON.stringify(this.highScore));
+          } else {
+            this.push('highScore', this.userWord)
+            this.popUpContent = 'Yuppiii "' + wordInput + '" value is '+ wordScore +'!'
+            localStorage.setItem('wordgame', JSON.stringify(this.highScore));
+          }
         } else if (this._checkInScoreTable(wordInput)) {
-
+          this.popUpContent ='"'+ wordInput+'" has already been used in the Game'
         } else {
-
+          this.popUpContent ='Wrong input, please try another word'
+          document.querySelector('img').src = 'custom-elements/message.gif'
         }
+        this.$.animated.open()
       },
 
       _checkInDictionary: function (wordInput) {
@@ -102,6 +119,12 @@
           }
         })
         return score;
+      },
+
+      _getScoreList: function () {
+        return this.highScore.reduce((el, acc) => {
+          return el.concat(acc.score);
+        }, []);
       }
 
     });
